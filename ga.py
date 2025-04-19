@@ -15,19 +15,19 @@ class GeneticAlgorithm:
         population_size: int,
         objective_function,
         chromosome_decoder: ChromosomeDecoder,
-        terminator: TerminationCriterion,
+        termination: TerminationCriterion,
         optimization: Optimization = Maximization(),
-        selector: Selection = RouletteSelection(),
-        crossing_strategy: Crossing = SinglePointCrossing(0.85),
-        mutation_strategy: Mutation = Mutation(),
+        selection: Selection = RouletteSelection(),
+        crossing: Crossing = SinglePointCrossing(0.85),
+        mutation: Mutation = Mutation(),
     ) -> None:
         self.population_size = population_size
         self.optimization = optimization
         self.chromosome_decoder = chromosome_decoder
-        self.selector = selector
-        self.crossing_strategy = crossing_strategy
-        self.mutation_strategy = mutation_strategy
-        self.terminator = terminator
+        self.selector = selection
+        self.crossing_strategy = crossing
+        self.mutation_strategy = mutation
+        self.terminator = termination
         self.objective_function = objective_function
 
         self.number_of_generation = 0
@@ -101,11 +101,11 @@ if __name__ == "__main__":
             lower_bounds=[2, -1],
             upper_bounds=[6, 4]
         ),
-        terminator=NumberOfGeneration(10),
+        termination=NumberOfGeneration(10),
         optimization=Maximization(),
-        selector=RouletteSelection(),
-        crossing_strategy=SinglePointCrossing(0.85),
-        mutation_strategy=Mutation(0.2),
+        selection=RouletteSelection(),
+        crossing=SinglePointCrossing(0.85),
+        mutation=Mutation(0.2),
     )
     ga.run()
     print(ga.result)

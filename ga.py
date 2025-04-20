@@ -2,8 +2,8 @@ import random
 
 from components.type import Chromosome
 from components.selection import Selection, RouletteSelection
-from components.crossing import Crossing, SinglePointCrossing
-from components.mutation import Mutation
+from components.crossover import Crossover, SinglePointCrossover
+from components.mutation import Mutation, BitFlipMutation
 from components.chromosome_decoder import ChromosomeDecoder, BinaryChromosomeDecoder
 from components.optimization import Optimization, Maximization
 from components.termination_criterion import TerminationCriterion, NumberOfGeneration
@@ -18,14 +18,14 @@ class GeneticAlgorithm:
         termination: TerminationCriterion,
         optimization: Optimization = Maximization(),
         selection: Selection = RouletteSelection(),
-        crossing: Crossing = SinglePointCrossing(0.85),
-        mutation: Mutation = Mutation(),
+        crossover: Crossover = SinglePointCrossover(0.85),
+        mutation: Mutation = BitFlipMutation(0.2),
     ) -> None:
         self.population_size = population_size
         self.optimization = optimization
         self.chromosome_decoder = chromosome_decoder
         self.selector = selection
-        self.crossing_strategy = crossing
+        self.crossover_strategy = crossover
         self.mutation_strategy = mutation
         self.terminator = termination
         self.objective_function = objective_function
@@ -70,7 +70,7 @@ class GeneticAlgorithm:
                 parent2 = random.choice(self.population)
 
                 # crossover
-                child1, child2 = self.crossing_strategy.cross(parent1, parent2)
+                child1, child2 = self.crossover_strategy.cross(parent1, parent2)
 
                 # mutation
                 child1, child2 = self.mutation_strategy.mutate(child1, child1)
@@ -104,8 +104,8 @@ if __name__ == "__main__":
         termination=NumberOfGeneration(10),
         optimization=Maximization(),
         selection=RouletteSelection(),
-        crossing=SinglePointCrossing(0.85),
-        mutation=Mutation(0.2),
+        crossover=SinglePointCrossover(0.85),
+        mutation=BitFlipMutation(0.2),
     )
     ga.run()
     print(ga.result)

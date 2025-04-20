@@ -6,3 +6,8 @@ class Mutation:
     
     def mutate(parent1: Chromosome, parent2: Chromosome) -> tuple[Chromosome, Chromosome]:
         raise NotImplementedError()
+
+
+class BitFlipMutation(Mutation):
+    def mutate(parent1: Chromosome, parent2: Chromosome) -> tuple[Chromosome, Chromosome]:
+        raise NotImplementedError()

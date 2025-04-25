@@ -6,7 +6,7 @@ from components.crossover import Crossover, SinglePointCrossover
 from components.mutation import Mutation, BitFlipMutation
 from components.chromosome_decoder import ChromosomeDecoder, BinaryChromosomeDecoder
 from components.optimization import Optimization, Maximization
-from components.termination_criterion import TerminationCriterion, NumberOfGeneration
+from components.termination_criterion import TerminationCriterion, NumberOfGeneration, OrTermination, ThresholdDifference
 
 
 class GeneticAlgorithm:
@@ -64,7 +64,7 @@ class GeneticAlgorithm:
             self.number_of_generation += 1
 
             new_population = []
-            while len(new_population) < self.parameter.population_size:
+            while len(new_population) < self.population_size:
                 # select two different parents, randomly
                 parent1 = random.choice(self.population)
                 parent2 = random.choice(self.population)
@@ -78,7 +78,7 @@ class GeneticAlgorithm:
                 # add the children to the new population
                 new_population.append(child1)
 
-                if len(new_population) < self.parameter.population_size:
+                if len(new_population) < self.population_size:
                     new_population.append(child2)
 
             self.population = new_population
@@ -88,24 +88,3 @@ class GeneticAlgorithm:
         if not self.optimal_chromosome:
             print("(Warning) Genetic Algorithm has not been run yet. Call run() method first")
         return self.optimal_fitness, self.chromosome_decoder.decode(self.optimal_chromosome)
-
-
-if __name__ == "__main__":
-    print(f"Solving a basic f(x1, x2) = x1^2 x2 + 2x1 - x2")
-    ga = GeneticAlgorithm(
-        population_size=100,
-        objective_function=lambda x: (x[0]**2)*x[1] + 2*x[0] - x[1],
-        chromosome_decoder=BinaryChromosomeDecoder(
-            number_of_bytes=6,
-            number_of_decision_variables=2,
-            lower_bounds=[2, -1],
-            upper_bounds=[6, 4]
-        ),
-        termination=NumberOfGeneration(10),
-        optimization=Maximization(),
-        selection=RouletteSelection(),
-        crossover=SinglePointCrossover(0.85),
-        mutation=BitFlipMutation(0.2),
-    )
-    ga.run()
-    print(ga.result)

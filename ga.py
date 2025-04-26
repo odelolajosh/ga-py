@@ -1,12 +1,13 @@
 import random
 
-from components.type import Chromosome
-from components.selection import Selection, RouletteSelection
-from components.crossover import Crossover, SinglePointCrossover
-from components.mutation import Mutation, BitFlipMutation
-from components.chromosome_decoder import ChromosomeDecoder, BinaryChromosomeDecoder
-from components.optimization import Optimization, Maximization
-from components.termination_criterion import TerminationCriterion, NumberOfGeneration, OrTermination, ThresholdDifference
+from genetic_algorithm.type import Chromosome
+from genetic_algorithm.selection import Selection, RouletteSelection
+from genetic_algorithm.crossover import Crossover, SinglePointCrossover
+from genetic_algorithm.mutation import Mutation, BitFlipMutation
+from genetic_algorithm.chromosome_decoder import ChromosomeDecoder
+from genetic_algorithm.optimization import Optimization, Maximization
+from genetic_algorithm.termination_criterion import TerminationCriterion
+from genetic_algorithm.callbacks.base import Callback
 
 
 class GeneticAlgorithm:
@@ -20,6 +21,7 @@ class GeneticAlgorithm:
         selection: Selection = RouletteSelection(),
         crossover: Crossover = SinglePointCrossover(0.85),
         mutation: Mutation = BitFlipMutation(0.2),
+        callbacks: list[Callback] = []
     ) -> None:
         self.population_size = population_size
         self.optimization = optimization
@@ -29,6 +31,7 @@ class GeneticAlgorithm:
         self.mutation_strategy = mutation
         self.terminator = termination
         self.objective_function = objective_function
+        self.callbacks = callbacks
 
         self.number_of_generation = 0
         self.population: list[Chromosome] = None
@@ -44,6 +47,10 @@ class GeneticAlgorithm:
 
         # while termination criterion is met
         while not self.terminator.should_terminate(self.number_of_generation, self.optimal_fitness):
+            # Start of generation
+            for cb in self.callbacks:
+                cb.on_generation_start(self.number_of_generation, self.population)
+
             # Evaluate population
             population_fitness = []
             for chromosome in self.population:
@@ -82,6 +89,22 @@ class GeneticAlgorithm:
                     new_population.append(child2)
 
             self.population = new_population
+
+            # End of generation
+            for cb in self.callbacks:
+                cb.on_generation_end(
+                    self.number_of_generation,
+                    self.population,
+                    self.optimal_fitness,
+                    self.chromosome_decoder.decode(self.optimal_chromosome)
+                )
+
+        # End of evolution
+        for cb in self.callbacks:
+            cb.on_evolution_end(
+                self.optimal_fitness,
+                self.chromosome_decoder.decode(self.optimal_chromosome)
+            )
 
     @property
     def result(self):

@@ -1,4 +1,4 @@
-from components.type import Chromosome
+from .type import Chromosome
 import random
 
 class Mutation:

@@ -53,6 +53,9 @@ class GeneticAlgorithm:
 
             # Evaluate population
             population_fitness = []
+            best_chromosome = None
+            best_fitness = None
+            
             for chromosome in self.population:
                 # Decode each chromosome
                 values = self.chromosome_decoder.decode(chromosome)
@@ -61,10 +64,13 @@ class GeneticAlgorithm:
                 population_fitness.append(fitness)
 
                 # Update the optimal fitness chromosome
-                if self.optimization.is_optimal(fitness, self.optimal_fitness):
-                    self.optimal_fitness = fitness
-                    self.optimal_chromosome = chromosome
+                if self.optimization.is_optimal(fitness, best_fitness):
+                    best_fitness = fitness
+                    best_chromosome = chromosome
             
+            self.optimal_fitness = best_fitness
+            self.optimal_chromosome = best_chromosome
+
             # Do selection
             self.population = self.selector.select(self.population, population_fitness)
 

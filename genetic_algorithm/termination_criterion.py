@@ -20,8 +20,10 @@ class ThresholdDifference(TerminationCriterion):
         if self.previous_optimal_fitness is None:
             self.previous_optimal_fitness = optimal_fitness
             return False
-        
-        return abs(optimal_fitness - self.previous_optimal_fitness) <= self.threshold
+
+        is_within_threshold =  abs(optimal_fitness - self.previous_optimal_fitness) <= self.threshold
+        self.previous_optimal_fitness = optimal_fitness
+        return is_within_threshold
 
 class OrTermination(TerminationCriterion):
     def __init__(self, *args) -> None:

@@ -28,7 +28,7 @@ class PlotFitnessCallback(Callback):
         plt.show()
 
 
-print(f"Laboratory Exercise 1")
+print("Laboratory Exercise 1")
 def f(x):
     return 2*x[0]*x[1]*x[2] - 4*x[0]*x[2] - 2*x[1]*x[2] + x[0]**2 + x[1]**2 + x[2]**2 - 2*x[0] - 4*x[1] + 4*x[2]
 ga = GeneticAlgorithm(

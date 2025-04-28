@@ -1,7 +1,7 @@
 from .type import Chromosome
 import random
 
-class ChromosomeDecoder():
+class BaseChromosomeDecoder():
     def __init__(
         self,
         number_of_bytes: int,
@@ -31,9 +31,16 @@ class ChromosomeDecoder():
         Generates a random chromosome
         """
         raise NotImplementedError()
+    
+    def clamp_chromosome(self, chromosome: Chromosome) -> Chromosome:
+        """
+        Returns a valid chromosome that is in bound
+        """
+        return chromosome
 
 
-class BinaryChromosomeDecoder(ChromosomeDecoder):
+
+class BinaryChromosomeDecoder(BaseChromosomeDecoder):
     def encode(self, value: list[float]) -> list[int]:
         chromosome = []
         
@@ -83,7 +90,7 @@ class BinaryChromosomeDecoder(ChromosomeDecoder):
         return chromosome
 
 
-class DenaryChromosomeDecoder(ChromosomeDecoder):
+class DenaryChromosomeDecoder(BaseChromosomeDecoder):
     def encode(self, value: list[float]) -> list[int]:
         raise NotImplementedError()
     

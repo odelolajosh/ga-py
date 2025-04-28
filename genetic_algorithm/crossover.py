@@ -1,7 +1,7 @@
 from .type import Chromosome
 import random
 
-class Crossover:
+class BaseCrossover:
     def __init__(self, crossover_probability: float) -> None:
         self.crossover_probability = crossover_probability
     
@@ -12,7 +12,7 @@ class Crossover:
         return random.random() < self.crossover_probability
 
 
-class SinglePointCrossover(Crossover):
+class SinglePointCrossover(BaseCrossover):
     def cross(self, parent1: Chromosome, parent2: Chromosome) -> tuple[Chromosome, Chromosome]:
         if self._can_cross():
             crossover_point = random.randint(0, len(parent1) - 1)

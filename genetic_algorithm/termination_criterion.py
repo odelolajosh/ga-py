@@ -1,9 +1,9 @@
-class TerminationCriterion:
+class BaseTerminationCriterion:
     def should_terminate(self, number_of_generation: int, optimal_fitness: float) -> bool:
         return False
 
 
-class NumberOfGeneration(TerminationCriterion):
+class NumberOfGeneration(BaseTerminationCriterion):
     def __init__(self, max_number_of_generation) -> None:
         self.max_number_of_generation = max_number_of_generation
     
@@ -11,7 +11,7 @@ class NumberOfGeneration(TerminationCriterion):
         return number_of_generation >= self.max_number_of_generation
 
 
-class ThresholdDifference(TerminationCriterion):
+class ThresholdDifference(BaseTerminationCriterion):
     def __init__(self, threshold: float):
         self.threshold = threshold
         self.previous_optimal_fitness = None
@@ -25,11 +25,11 @@ class ThresholdDifference(TerminationCriterion):
         self.previous_optimal_fitness = optimal_fitness
         return is_within_threshold
 
-class OrTermination(TerminationCriterion):
+class OrTermination(BaseTerminationCriterion):
     def __init__(self, *args) -> None:
         super().__init__()
 
-        self.terminators: list[TerminationCriterion] = args;
+        self.terminators: list[BaseTerminationCriterion] = args;
 
     def should_terminate(self, number_of_generation: int, optimal_fitness: float) -> bool:
         for terminator in self.terminators:

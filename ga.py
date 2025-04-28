@@ -1,12 +1,12 @@
 import random
 
 from genetic_algorithm.type import Chromosome
-from genetic_algorithm.selection import Selection, RouletteSelection
-from genetic_algorithm.crossover import Crossover, SinglePointCrossover
-from genetic_algorithm.mutation import Mutation, BitFlipMutation
-from genetic_algorithm.chromosome_decoder import ChromosomeDecoder
-from genetic_algorithm.optimization import Optimization, Maximization
-from genetic_algorithm.termination_criterion import TerminationCriterion
+from genetic_algorithm.selection import BaseSelection, RouletteSelection
+from genetic_algorithm.crossover import BaseCrossover, SinglePointCrossover
+from genetic_algorithm.mutation import BaseMutation, BitFlipMutation
+from genetic_algorithm.chromosome_decoder import BaseChromosomeDecoder
+from genetic_algorithm.optimization import BaseOptimization, Maximization
+from genetic_algorithm.termination_criterion import BaseTerminationCriterion
 from genetic_algorithm.callbacks.base import Callback
 
 
@@ -15,12 +15,12 @@ class GeneticAlgorithm:
         self,
         population_size: int,
         objective_function,
-        chromosome_decoder: ChromosomeDecoder,
-        termination: TerminationCriterion,
-        optimization: Optimization = Maximization(),
-        selection: Selection = RouletteSelection(),
-        crossover: Crossover = SinglePointCrossover(0.85),
-        mutation: Mutation = BitFlipMutation(0.2),
+        chromosome_decoder: BaseChromosomeDecoder,
+        termination: BaseTerminationCriterion,
+        optimization: BaseOptimization = Maximization(),
+        selection: BaseSelection = RouletteSelection(),
+        crossover: BaseCrossover = SinglePointCrossover(0.85),
+        mutation: BaseMutation = BitFlipMutation(0.2),
         callbacks: list[Callback] = []
     ) -> None:
         self.population_size = population_size
@@ -87,6 +87,9 @@ class GeneticAlgorithm:
 
                 # mutation
                 child1, child2 = self.mutation_strategy.mutate(child1, child1)
+
+                child1 = self.chromosome_decoder.clamp_chromosome(child1)
+                child2 = self.chromosome_decoder.clamp_chromosome(child2)
 
                 # add the children to the new population
                 new_population.append(child1)

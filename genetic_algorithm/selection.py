@@ -1,12 +1,12 @@
 from .type import Chromosome
 import random
 
-class Selection:
+class BaseSelection:
     def select(self, population: list[Chromosome], population_fitness: list[float]) -> list[Chromosome]:
         raise NotImplementedError()
 
 
-class RouletteSelection:
+class RouletteSelection(BaseSelection):
     def select(self, population: list[Chromosome], population_fitness: list[float]) -> list[Chromosome]:
         roulette_wheel = []
         cumulative_fitness = 0

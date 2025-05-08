@@ -34,7 +34,7 @@ class GeneticAlgorithm:
         self.callbacks = callbacks
 
         self.number_of_generation = 0
-        self.population: list[Chromosome] = None
+        self.population: list[Chromosome] = []
         self.optimal_fitness: float = None
         self.optimal_chromosome: Chromosome = None
     
@@ -86,7 +86,7 @@ class GeneticAlgorithm:
                 child1, child2 = self.crossover_strategy.cross(parent1, parent2)
 
                 # mutation
-                child1, child2 = self.mutation_strategy.mutate(child1, child1)
+                child1, child2 = self.mutation_strategy.mutate(child1, child2)
 
                 child1 = self.chromosome_decoder.clamp_chromosome(child1)
                 child2 = self.chromosome_decoder.clamp_chromosome(child2)

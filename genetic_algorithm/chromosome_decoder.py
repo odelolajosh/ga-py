@@ -41,7 +41,7 @@ class BaseChromosomeDecoder():
 
 
 class BinaryChromosomeDecoder(BaseChromosomeDecoder):
-    def encode(self, value: list[float]) -> list[int]:
+    def encode(self, value: list[float]) -> Chromosome:
         chromosome = []
         
         if len(value) != self.number_of_decision_variables:
@@ -91,11 +91,84 @@ class BinaryChromosomeDecoder(BaseChromosomeDecoder):
 
 
 class DenaryChromosomeDecoder(BaseChromosomeDecoder):
-    def encode(self, value: list[float]) -> list[int]:
-        raise NotImplementedError()
+    def __init__(
+        self,
+        number_of_bytes: int,
+        number_of_decision_variables: int,
+        dp: int,
+        lower_bounds: list[float],
+        upper_bounds: list[float],
+    ) -> None:
+        super().__init__(
+            number_of_bytes=number_of_bytes,
+            number_of_decision_variables=number_of_decision_variables,
+            lower_bounds=lower_bounds,
+            upper_bounds=upper_bounds
+        )
+        assert dp > 0 and number_of_bytes > 1 and dp < number_of_bytes, "Invalid dp or number_of_bytes"
+        self.dp = dp
+        self.digit_bytes = number_of_bytes
+        self.number_of_bytes = number_of_bytes + 1  # Including sign
+
+    def encode(self, value: list[float]) -> Chromosome:
+        chromosome: Chromosome = []
+
+        if len(value) != self.number_of_decision_variables:
+            raise ValueError(f"encode: Expected {self.number_of_decision_variables} values, got {len(value)}")
+
+        for i, x_i in enumerate(value):
+            if not (self.lower_bounds[i] <= x_i <= self.upper_bounds[i]):
+                raise ValueError(f"encode: value[{i}] = {x_i} is out of bounds [{self.lower_bounds[i]}, {self.upper_bounds[i]}]")
+
+            gene = self.__float_to_gene(x_i)
+            chromosome.append(gene)
+
+        return chromosome
     
-    def decode(self, chromosome: list) -> list[float]:
-        raise NotImplementedError()
+    def decode(self, chromosome: Chromosome) -> list[float]:
+        x = []
+        for i, gene in enumerate(chromosome):
+            sign = -1 if gene[0] == 1 else 1
+            magnitude = sum([g * 10**j for j, g in enumerate(reversed(gene[1:]))])
+            x_i = sign * magnitude / 10**self.dp
+            x_i = min(max(x_i, self.lower_bounds[i]), self.upper_bounds[i])
+            x.append(x_i)
+        return x
     
     def random_chromosome(self) -> Chromosome:
-        raise NotImplementedError()
+        chromosome: Chromosome = []
+        for i in range(self.number_of_decision_variables):
+            lower = self.lower_bounds[i] * 10**self.dp
+            upper = self.upper_bounds[i] * 10**self.dp
+            value = (lower + random.random() * (upper - lower)) / (10**self.dp)
+            gene = self.__float_to_gene(value)
+            chromosome.append(gene)
+        return chromosome
+
+    def __float_to_gene(self, value: float) -> list[int]:
+        sign = 0 if value >= 0 else 1
+        value = abs(value)
+        scaled = int(round(value * 10**self.dp))
+
+        max_digits = 10**self.digit_bytes
+        assert scaled < max_digits, f"{value} exceeds digit capacity for {self.digit_bytes} bytes"
+
+        gene = [sign]
+        divisor = 10**(self.digit_bytes - 1)
+        for _ in range(self.digit_bytes):
+            gene.append(scaled // divisor)
+            scaled %= divisor
+            divisor //= 10
+
+        return gene
+    
+    def clamp_chromosome(self, chromosome: Chromosome) -> Chromosome:
+        new_chromosome = []
+        for i, gene in enumerate(chromosome):
+            sign = -1 if gene[0] == 1 else 1
+            magnitude = sum([g * 10**j for j, g in enumerate(reversed(gene[1:]))])
+            x_i = sign * magnitude / 10**self.dp
+            x_i = min(max(x_i, self.lower_bounds[i]), self.upper_bounds[i])
+            new_gene = self.__float_to_gene(x_i)
+            new_chromosome.append(new_gene)
+        return new_chromosome

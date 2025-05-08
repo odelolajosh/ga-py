@@ -33,9 +33,9 @@ def test_binary_chromosome_encoding_with_5_bytes(x, value):
     assert bin_encoding.encode(decoded_value) == x
 
 @pytest.mark.parametrize("x,value", [
-    ([[2, 4, 5, 5], [3, 2, 0, 1], [1, 3, 0, 0]], [2.455, 3.201, 1.300]),
+    ([[0, 2, 4, 5, 5], [0, 3, 2, 0, 1], [0, 1, 3, 0, 0]], [2.455, 3.201, 1.300]),
     # when a given value exceeds the upper boundary, it should encode to the upper bound
-    ([[0, 9, 9, 0], [5, 0, 0, 1], [4, 3, 1, 9]], [0.990, 5.000, 4.319]),
+    ([[0, 0, 9, 9, 0], [0, 5, 0, 0, 1], [0, 4, 3, 1, 9]], [0.990, 5.000, 4.319]),
 ])
 def test_denary_chromosome_encoding_with_1_integer_3_dp(x, value):
     dec_encoding = DenaryChromosomeDecoder(
@@ -47,3 +47,25 @@ def test_denary_chromosome_encoding_with_1_integer_3_dp(x, value):
     )
     decoded_value = dec_encoding.decode(x)
     assert [round(x, 3) for x in decoded_value] == value
+
+
+def test_denary_chromosome_encoding_random_chromosome():
+    lower_bounds = [0, 1, 1]
+    upper_bounds = [3, 5, 6]
+    dec_encoding = DenaryChromosomeDecoder(
+        number_of_bytes=5,
+        number_of_decision_variables=3,
+        lower_bounds=lower_bounds,
+        upper_bounds=upper_bounds,
+        dp=4
+    )
+    for _ in range(10):
+        chromosome = dec_encoding.random_chromosome()
+        value = dec_encoding.decode(chromosome)
+        assert value >= lower_bounds
+        assert value <= upper_bounds
+
+        clamped_chromosome = dec_encoding.clamp_chromosome(chromosome)
+        value = dec_encoding.decode(clamped_chromosome)
+        assert value >= lower_bounds
+        assert value <= upper_bounds

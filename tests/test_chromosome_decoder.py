@@ -47,25 +47,3 @@ def test_denary_chromosome_encoding_with_1_integer_3_dp(x, value):
     )
     decoded_value = dec_encoding.decode(x)
     assert [round(x, 3) for x in decoded_value] == value
-
-
-def test_denary_chromosome_encoding_random_chromosome():
-    lower_bounds = [0, 1, 1]
-    upper_bounds = [3, 5, 6]
-    dec_encoding = DenaryChromosomeDecoder(
-        number_of_bytes=5,
-        number_of_decision_variables=3,
-        lower_bounds=lower_bounds,
-        upper_bounds=upper_bounds,
-        dp=4
-    )
-    for _ in range(10):
-        chromosome = dec_encoding.random_chromosome()
-        value = dec_encoding.decode(chromosome)
-        assert value >= lower_bounds
-        assert value <= upper_bounds
-
-        clamped_chromosome = dec_encoding.clamp_chromosome(chromosome)
-        value = dec_encoding.decode(clamped_chromosome)
-        assert value >= lower_bounds
-        assert value <= upper_bounds

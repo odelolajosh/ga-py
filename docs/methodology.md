@@ -2,15 +2,15 @@
 
 Here, we discuss how the code is structured.
 
-## Anatomy of a Chromosome
+## The Algorithm
 
-A chromosome in a binary representation has this structure
+A problem is solved by initially getting random, but bounded solutions of size `population_size`. This makes up the `population`. Each solution is regarded as an individual.
+
+## Anatomy of an Individual
+
+An individual is an 1D array of size `number_of_decision_variables`. That is in the form
 $$
-Chromosome = [
-  [1, 0, 1, 1, 0],
-  [0, 1, 0, 1, 0],
-  [1, 1, 0, 1, 0]
-]
+Individual = [x_1, x_2, x_3, ..., x_n]\\
+\text{where n is number of decision variables}
 $$
 
-From this chromosome, we see three decision variables say $x_1 = [1, 0, 1, 1, 0]$, $x_2 = [0, 1, 0, 1, 0]$ and $x_3 = [1, 1, 0, 1, 0]$.

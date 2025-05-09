@@ -1,6 +1,6 @@
 import random
 
-from genetic_algorithm.type import Chromosome
+from genetic_algorithm.type import Individual
 from genetic_algorithm.selection import BaseSelection, RouletteSelection
 from genetic_algorithm.crossover import BaseCrossover, SinglePointCrossover
 from genetic_algorithm.mutation import BaseMutation, BitFlipMutation
@@ -33,43 +33,49 @@ class GeneticAlgorithm:
         self.objective_function = objective_function
         self.callbacks = callbacks
 
+        self.lower_bounds = chromosome_decoder.lower_bounds
+        self.upper_bounds = chromosome_decoder.upper_bounds
+        self.number_of_decision_variables = chromosome_decoder.number_of_decision_variables
+
         self.number_of_generation = 0
-        self.population: list[Chromosome] = []
+        self.population: list[Individual] = []
         self.optimal_fitness: float = None
-        self.optimal_chromosome: Chromosome = None
+        self.optimal_individual: Individual = None
     
     def run(self):
         # initialize population
         self.population = []
         for _ in range(self.population_size):
-            random_chromosome = self.chromosome_decoder.random_chromosome()
-            self.population.append(random_chromosome)
+            individual = [random.uniform(self.lower_bounds[i], self.upper_bounds[i]) for i in range(self.number_of_decision_variables)]
+            self.population.append(individual)
 
         # while termination criterion is met
         while not self.terminator.should_terminate(self.number_of_generation, self.optimal_fitness):
             # Start of generation
             for cb in self.callbacks:
-                cb.on_generation_start(self.number_of_generation, self.population)
+                cb.on_generation_start(
+                    self.number_of_generation,
+                    self.optimal_fitness,
+                    self.optimal_individual,
+                    self.population
+                )
 
             # Evaluate population
             population_fitness = []
-            best_chromosome = None
+            best_individual = None
             best_fitness = None
             
             for chromosome in self.population:
-                # Decode each chromosome
-                values = self.chromosome_decoder.decode(chromosome)
-                # Get fitness for each chromosome
-                fitness = self.objective_function(values)
+                fitness = self.objective_function(chromosome)
                 population_fitness.append(fitness)
 
                 # Update the optimal fitness chromosome
                 if self.optimization.is_optimal(fitness, best_fitness):
                     best_fitness = fitness
-                    best_chromosome = chromosome
+                    best_individual = chromosome
             
             self.optimal_fitness = best_fitness
-            self.optimal_chromosome = best_chromosome
+            self.optimal_individual = best_individual
 
             # Do selection
             self.population = self.selector.select(self.population, population_fitness)
@@ -82,14 +88,17 @@ class GeneticAlgorithm:
                 parent1 = random.choice(self.population)
                 parent2 = random.choice(self.population)
 
+                parent1 = self.chromosome_decoder.encode(parent1)
+                parent2 = self.chromosome_decoder.encode(parent2)
+
                 # crossover
                 child1, child2 = self.crossover_strategy.cross(parent1, parent2)
 
                 # mutation
                 child1, child2 = self.mutation_strategy.mutate(child1, child2)
 
-                child1 = self.chromosome_decoder.clamp_chromosome(child1)
-                child2 = self.chromosome_decoder.clamp_chromosome(child2)
+                child1 = self.chromosome_decoder.decode(child1)
+                child2 = self.chromosome_decoder.decode(child2)
 
                 # add the children to the new population
                 new_population.append(child1)
@@ -103,20 +112,22 @@ class GeneticAlgorithm:
             for cb in self.callbacks:
                 cb.on_generation_end(
                     self.number_of_generation,
-                    self.population,
                     self.optimal_fitness,
-                    self.chromosome_decoder.decode(self.optimal_chromosome)
+                    self.optimal_individual,
+                    self.population
                 )
 
         # End of evolution
         for cb in self.callbacks:
             cb.on_evolution_end(
+                self.number_of_generation,
                 self.optimal_fitness,
-                self.chromosome_decoder.decode(self.optimal_chromosome)
+                self.optimal_individual,
+                self.population
             )
 
     @property
     def result(self):
-        if not self.optimal_chromosome:
+        if not self.optimal_individual:
             print("(Warning) Genetic Algorithm has not been run yet. Call run() method first")
-        return self.optimal_fitness, self.chromosome_decoder.decode(self.optimal_chromosome)
+        return self.optimal_fitness, self.optimal_individual

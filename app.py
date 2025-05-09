@@ -1,4 +1,4 @@
-
+from genetic_algorithm.type import Individual
 from genetic_algorithm.selection import RouletteSelection
 from genetic_algorithm.crossover import SinglePointCrossover
 from genetic_algorithm.mutation import BitFlipMutation
@@ -14,11 +14,11 @@ class PlotFitnessCallback(Callback):
         self.generations = []
         self.best_fitnesses = []
 
-    def on_generation_end(self, generation, population, best_fitness, best_individual):
+    def on_generation_end(self, generation, best_fitness: float, best_individual: Individual, population: list[Individual]):
         self.generations.append(generation)
         self.best_fitnesses.append(best_fitness)
 
-    def on_evolution_end(self, best_fitness, best_individual):
+    def on_evolution_end(self, generation, best_fitness: float, best_individual: Individual, population: list[Individual]):
         plt.figure(figsize=(10, 6))
         plt.plot(self.generations, self.best_fitnesses, marker='o')
         plt.title('Fitness vs Generation')
@@ -69,7 +69,7 @@ ga = GeneticAlgorithm(
         NumberOfGeneration(50),
         ThresholdDifference(0.05)
     ),
-    callbacks=[PlotFitnessCallback()],
+    # callbacks=[PlotFitnessCallback()],
     optimization=Maximization(),
     selection=RouletteSelection(),
     crossover=SinglePointCrossover(0.80),
@@ -78,28 +78,28 @@ ga = GeneticAlgorithm(
 ga.run()
 print(ga.result)
 
-# print("Laboratory Exercise 2")
-# def f(x):
-#     return 2*x[0]*x[1]*x[2] - 4*x[0]*x[2] - 2*x[1]*x[2] + x[0]**2 + x[1]**2 + x[2]**2 - 2*x[0] - 4*x[1] + 4*x[2]
-# ga = GeneticAlgorithm(
-#     population_size=10,
-#     objective_function=f,
-#     chromosome_decoder=DenaryChromosomeDecoder(
-#         number_of_bytes=5,
-#         number_of_decision_variables=3,
-#         lower_bounds=[10, 0, -20],
-#         upper_bounds=[90, 90, 60],
-#         dp=3,
-#     ),
-#     termination=OrTermination(
-#         NumberOfGeneration(100),
-#         # ThresholdDifference(0.05)
-#     ),
-#     callbacks=[PlotFitnessCallback()],
-#     optimization=Maximization(),
-#     selection=RouletteSelection(),
-#     crossover=SinglePointCrossover(0.80),
-#     mutation=BitFlipMutation(0.20),
-# )
-# ga.run()
-# print(ga.result)
+print("Laboratory Exercise 2")
+def f(x):
+    return 2*x[0]*x[1]*x[2] - 4*x[0]*x[2] - 2*x[1]*x[2] + x[0]**2 + x[1]**2 + x[2]**2 - 2*x[0] - 4*x[1] + 4*x[2]
+ga = GeneticAlgorithm(
+    population_size=10,
+    objective_function=f,
+    chromosome_decoder=DenaryChromosomeDecoder(
+        number_of_bytes=5,
+        number_of_decision_variables=3,
+        lower_bounds=[10, 0, -20],
+        upper_bounds=[90, 90, 60],
+        dp=3,
+    ),
+    termination=OrTermination(
+        NumberOfGeneration(100),
+        ThresholdDifference(0.05)
+    ),
+    # callbacks=[PlotFitnessCallback()],
+    optimization=Maximization(),
+    selection=RouletteSelection(),
+    crossover=SinglePointCrossover(0.80),
+    mutation=BitFlipMutation(0.20),
+)
+ga.run()
+print(ga.result)

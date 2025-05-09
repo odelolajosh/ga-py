@@ -25,9 +25,9 @@ def ga(
     mutation: BaseMutation = BitFlipMutation(0.2),
     callbacks: list[Callback] = []
 ) -> None:
-    chromosome_decoder.lower_bounds = lower_bounds
-    chromosome_decoder.upper_bounds = upper_bounds
-    chromosome_decoder.number_of_decision_variables = number_of_decision_variables
+    # chromosome_decoder.lower_bounds = lower_bounds
+    # chromosome_decoder.upper_bounds = upper_bounds
+    # chromosome_decoder.number_of_decision_variables = number_of_decision_variables
 
     lower_bounds = np.array(lower_bounds)
     upper_bounds = np.array(upper_bounds)

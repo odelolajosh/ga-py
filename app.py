@@ -8,6 +8,7 @@ from genetic_algorithm.termination_criterion import NumberOfGeneration, OrTermin
 from ga import GeneticAlgorithm
 from genetic_algorithm.callbacks.base import Callback
 import matplotlib.pyplot as plt
+from prettytable import PrettyTable
 
 class PlotFitnessCallback(Callback):
     def __init__(self):
@@ -27,6 +28,17 @@ class PlotFitnessCallback(Callback):
         plt.grid(True)
         plt.show()
 
+class TabulateCallback(Callback):
+    def __init__(self) -> None:
+        self.table = PrettyTable()
+        self.table.field_names = ["Generation", "Best Individual", "Best fitness"]
+    
+    def on_generation_end(self, generation, best_fitness: float, best_individual: Individual, population: list[Individual]):
+        self.table.add_row([generation, best_individual, best_fitness])
+    
+    def on_evolution_end(self, generation, best_fitness: float, best_individual: Individual, population: list[Individual]):
+        print(self.table)
+
 
 # Solving a basic optimization problem
 print(f"Solving a basic f(x1, x2) = x1^2 x2 + 2x1 - x2")
@@ -44,7 +56,10 @@ ga = GeneticAlgorithm(
         NumberOfGeneration(100),
         ThresholdDifference(0.05)
     ),
-    # callbacks=[PlotFitnessCallback()],
+    callbacks=[
+        # PlotFitnessCallback(),
+        TabulateCallback()
+    ],
     optimization=Maximization(),
     selection=RouletteSelection(),
     crossover=SinglePointCrossover(0.85),
@@ -69,7 +84,10 @@ ga = GeneticAlgorithm(
         NumberOfGeneration(50),
         ThresholdDifference(0.05)
     ),
-    # callbacks=[PlotFitnessCallback()],
+    callbacks=[
+        # PlotFitnessCallback(),
+        TabulateCallback(),
+    ],
     optimization=Maximization(),
     selection=RouletteSelection(),
     crossover=SinglePointCrossover(0.80),
@@ -85,17 +103,20 @@ ga = GeneticAlgorithm(
     population_size=10,
     objective_function=f,
     chromosome_decoder=DenaryChromosomeDecoder(
-        number_of_bytes=5,
+        number_of_bytes=10,
         number_of_decision_variables=3,
         lower_bounds=[10, 0, -20],
         upper_bounds=[90, 90, 60],
-        dp=3,
+        dp=8,
     ),
     termination=OrTermination(
         NumberOfGeneration(100),
         ThresholdDifference(0.05)
     ),
-    # callbacks=[PlotFitnessCallback()],
+    callbacks=[
+        # PlotFitnessCallback(),
+        TabulateCallback(),
+    ],
     optimization=Maximization(),
     selection=RouletteSelection(),
     crossover=SinglePointCrossover(0.80),
